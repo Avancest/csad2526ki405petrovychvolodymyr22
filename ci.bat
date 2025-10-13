@@ -23,9 +23,5 @@ if exist HelloWorld.exe (
     exit /b 1
 )
 
-echo === Step 6: Make build.sh executable (Linux/macOS) ===
-bash -c "chmod +x ../build.sh" 2>nul
-
 echo === CI completed successfully! ===
-pause
 exit /b 0
