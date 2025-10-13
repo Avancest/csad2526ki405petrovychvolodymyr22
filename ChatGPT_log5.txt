@@ -198,3 +198,63 @@ cmake-version: '3.28.1'
   run: |
     chmod +x ./ci.bat
     ./ci.bat
+
+
+User:
+
+Update only for windows
+
+ChatGPT:
+Ось оновлений фрагмент файлу ci.yml, який застосовується лише для Windows. Він включає використання стабільної версії CMake та правильний запуск скрипту ci.bat через cmd:
+```yaml
+name: Cross-platform Build and Test
+
+on:
+  push:
+    branches:
+      - "*develop*"
+      - "*master*"
+  pull_request:
+    branches:
+      - "*develop*"
+      - "*master*"
+
+jobs:
+  cross_build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.28.1'
+
+      - name: Verify CMake version
+        run: cmake --version
+
+      # ✅ Run CI script ONLY on Windows
+      - name: Run CI script on Windows
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: ci.bat
+
+      # Linux/macOS runners now skip ci.bat
+      - name: Skip CI script on Linux/macOS
+        if: runner.os != 'Windows'
+        run: echo "⚠️ Skipping ci.bat on non-Windows runner"
+
+      - name: Deploy
+        run: echo "🚀 Deploy step (add real deployment commands here)"
+✅ Що змінилось:
+
+Крок для Linux/macOS більше не запускає .bat.
+
+Додано простий крок, який показує, що .bat пропускається на не-Windows платформах.
+
+Windows залишилось без змін: ci.bat запускається через cmd.

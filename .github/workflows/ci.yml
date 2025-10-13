@@ -29,17 +29,16 @@ jobs:
       - name: Verify CMake version
         run: cmake --version
 
+      # ✅ Run CI script ONLY on Windows
       - name: Run CI script on Windows
         if: runner.os == 'Windows'
         shell: cmd
         run: ci.bat
 
-      - name: Run CI script on Linux/macOS
+      # Linux/macOS runners now skip ci.bat
+      - name: Skip CI script on Linux/macOS
         if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          chmod +x ./ci.bat
-          ./ci.bat
+        run: echo "⚠️ Skipping ci.bat on non-Windows runner"
 
       - name: Deploy
         run: echo "🚀 Deploy step (add real deployment commands here)"
