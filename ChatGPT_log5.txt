@@ -258,3 +258,71 @@ jobs:
 Додано простий крок, який показує, що .bat пропускається на не-Windows платформах.
 
 Windows залишилось без змін: ci.bat запускається через cmd.
+
+User:
+Errors while running CTest Error: Process completed with exit code 8.
+
+
+ChatGPT:
+Помилка "Errors while running CTest Error: Process completed with exit code 8" вказує на те, що під час виконання тестів за допомогою CTest виникла помилка. Код виходу 8 зазвичай означає, що один або кілька тестів не пройшли успішно.
+
+🔹 Проблема
+
+CMake на Windows за замовчуванням генерує Visual Studio проект, і файли .exe для тестів лежать у:
+
+build\Debug\unit_tests.exe
+
+Але коли ти запускаєш:
+
+ctest --output-on-failure
+
+
+Без параметра -C Debug (configuration), CTest не знає, яку збірку запускати. Тому бачиш:
+
+Test not available without configuration.  (Missing "-C <config>"?)
+
+🔹 Як виправити
+
+У ci.bat потрібно додати конфігурацію для CTest на Windows:
+
+echo === Step 4: Run tests ===
+ctest --output-on-failure -C Debug
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+
+-C Debug відповідає за запуск тестів у Debug-конфігурації (це та, яку CMake створює за замовчуванням для Visual Studio).
+
+🔹 Повний приклад оновленого ci.bat для Windows
+@echo off
+echo === Step 1: Create build directory ===
+if not exist build mkdir build
+cd build
+
+echo === Step 2: Configure project with CMake ===
+cmake ..
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+echo === Step 3: Build project ===
+cmake --build .
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+echo === Step 4: Run tests ===
+ctest --output-on-failure -C Debug
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+echo === Step 5: Verify executable ===
+if exist Debug\HelloWorld.exe (
+    echo ✅ Build successful! Found HelloWorld.exe
+) else (
+    echo ❌ HelloWorld.exe not found!
+    exit /b 1
+)
+
+echo === CI completed successfully! ===
+exit /b 0
+
+🔹 Що змінилось
+
+Додано -C Debug у ctest → тести запускаються на Windows Visual Studio генераторі.
+
+Шлях до HelloWorld.exe уточнено (Debug\HelloWorld.exe).
