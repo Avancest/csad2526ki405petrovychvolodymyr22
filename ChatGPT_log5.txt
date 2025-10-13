@@ -1,0 +1,89 @@
+﻿User:
+
+У файлі ci.yml згенерувати робочий процес (workflow) з наступними вимогами: 
+○ Trigger: Запускати акцію при push або pull request у гілку, що містить в назві develop чи master . 
+○ Job: Створити одну Job (наприклад, cross_build). 
+○ Strategy: 
+	Використати матрицю (strategy: matrix) для запуску білду на трьох ОС: 
+	■ runs-on: ubuntu-latest (Linux) 
+	■ runs-on: windows-latest (Windows) 
+	■ runs-on: macos-latest (macOS) 
+○ Steps: Кожен білд повинен включати кроки: 
+	■ Checkout коду (actions/checkout@v4). 
+	■ Встановлення CMake (якщо потрібно). 
+	■ Запуск команд конфігурації та білдування (запуск скрипту ci.bat). 
+	■ Deploy.
+
+
+ChatGPT:
+Ось повністю готовий файл .github/workflows/ci.yml, який відповідає всім твоїм вимогам
+name: Cross-platform Build and Test
+
+on:
+  push:
+    branches:
+      - "*develop*"
+      - "*master*"
+  pull_request:
+    branches:
+      - "*develop*"
+      - "*master*"
+
+jobs:
+  cross_build:
+    name: Build and Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      # 1️ Checkout репозиторію
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️ Встановлення CMake (на випадок, якщо не встановлено)
+      - name: Set up CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: 'latest'
+
+      # 3️ Запуск команд конфігурації та білдування (через скрипт ci.bat)
+      # Для Linux і macOS використовується bash, для Windows — cmd
+      - name: Run CI script
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            call ci.bat
+          else
+            chmod +x ./ci.bat
+            ./ci.bat
+          fi
+        shell: bash
+
+      # 4️ Deploy (заглушка, можна замінити реальними командами)
+      - name: Deploy
+        run: echo "🚀 Deploy step (add real deployment commands here)"
+🧾 Пояснення:
+| Елемент               | Опис                                                                                         |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| `on`                  | Запускає workflow при `push` або `pull_request` у гілки, які містять `develop` або `master`. |
+| `matrix`              | Дозволяє одночасно виконувати білд на 3 платформах: Windows, Linux, macOS.                   |
+| `actions/checkout@v4` | Клонує код із репозиторію.                                                                   |
+| `actions-setup-cmake` | Встановлює останню версію CMake.                                                             |
+| `Run CI script`       | Запускає твій файл `ci.bat` — білд і тести.                                                  |
+| `Deploy`              | Місце, куди потім можна вставити реальні команди для розгортання.                            |
+
+✅ Як запустити:
+
+1. Створи структуру:
+    .github/workflows/ci.yml
+
+2. Додай цей код у ci.yml.
+
+3. Закоміть зміни:
+    git add .github/workflows/ci.yml
+    git commit -m "ci: add cross-platform CMake workflow using ci.bat"
+    git push
+
+4. Перейди у вкладку Actions на GitHub — побачиш, як CI запускається автоматично.
