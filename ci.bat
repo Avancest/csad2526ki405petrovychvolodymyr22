@@ -12,11 +12,11 @@ cmake --build .
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo === Step 4: Run tests ===
-ctest --output-on-failure
+ctest --output-on-failure -C Debug
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo === Step 5: Verify executable ===
-if exist HelloWorld.exe (
+if exist Debug\HelloWorld.exe (
     echo ✅ Build successful! Found HelloWorld.exe
 ) else (
     echo ❌ HelloWorld.exe not found!
