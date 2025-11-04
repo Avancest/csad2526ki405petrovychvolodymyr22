@@ -1,1 +1,0 @@
-# csad2526ki405petrovychvolodymyr22
