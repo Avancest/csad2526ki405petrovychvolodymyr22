@@ -1,0 +1,20 @@
+User:
+
+Заповни CMakeLists.txt
+``````````````````````
+
+Copilot:
+cmake_minimum_required(VERSION 3.10)
+
+project(HelloWorld LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_executable(HelloWorld main.cpp)
+
+•	Вказано мінімальну версію CMake.
+•	Задано назву проєкту та мову програмування.
+•	Встановлено стандарт C++17.
+•	Додається виконуваний файл з main.cpp.
+Цей шаблон підходить для простої C++ програми з використанням CMake та Ninja.
